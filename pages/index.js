@@ -1,27 +1,38 @@
-import Link from "next/link";
-import MeetupList from '../components/meetups/MeetupList'
-const DUMMY = [
-    {
-        id: '1',
-        title: 'Meetup in React',
-        image: 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pngplay.com%2Fimage%2F393995&psig=AOvVaw2U0GX1uLiC2JDNLsCzT2Dg&ust=1640147393362000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCJjpuaiH9PQCFQAAAAAdAAAAABAD',
-        address: 'New York',
-        description: 'Ths is a first meetup'
-    },
-    {
-        id: '2',
-        title: 'Meetup  2 in React',
-        image: 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pngplay.com%2Fimage%2F393995&psig=AOvVaw2U0GX1uLiC2JDNLsCzT2Dg&ust=1640147393362000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCJjpuaiH9PQCFQAAAAAdAAAAABAD',
-        address: 'New York 2',
-        description: 'Ths is a first meetup 2'
-    }
-]
-const index = () => {
+import MeetupList from "../components/meetups/MeetupList";
+import Head from "next/head";
+import { MongoClient } from "mongodb";
+
+const index = ({ meetups }) => {
   return (
-    
-        <MeetupList meetups={DUMMY}/>
-    
+    <>
+      <Head>
+        <title>Meetups</title>
+        <meta name="description" content="practice with next js" />
+      </Head>
+      <MeetupList meetups={meetups} />;
+    </>
   );
+};
+
+export const getStaticProps = async () => {
+  const client = await MongoClient.connect(
+    "mongodb+srv://root:root@cluster0.q1yh2.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+  );
+  const db = client.db("test");
+  const collection = db.collection("devices");
+  const meetups = await collection.find().toArray();
+  client.close();
+  return {
+    props: {
+      meetups: meetups.map((met) => ({
+        title: met.title,
+        address: met.address,
+        image: met.image,
+        id: met._id.toString(),
+      })),
+    },
+    revalidate: 10,
+  };
 };
 
 export default index;

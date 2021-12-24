@@ -1,8 +1,19 @@
 import NewMeetupForm from "../../components/meetups/NewMeetupForm";
-const NewMeetupPage = () => {
+import axios from "axios";
+import {useRouter} from 'next/router'
+import { route } from "next/dist/server/router";
 
-    const addMeetup = (enteredMeetupData) => {};
-  return <NewMeetupForm onAdd={addMeetup}/>;
+const NewMeetupPage = () => {
+  const router = useRouter()
+  const addMeetup = async (enteredMeetupData) => {
+   
+    const res = await axios.post("/api/new-meetup", enteredMeetupData);
+    console.log(res.data, "fuck u");
+
+    router.push(`/`)
+  };
+
+  return <NewMeetupForm onAdd={addMeetup} />;
 };
 
 export default NewMeetupPage;
